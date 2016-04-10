@@ -9,7 +9,7 @@
 #endif
 
 
-#define LOG_INPUT 0
+#define LOG_INPUT 1
 #define MANUAL_TUNING 0
 #define LOG_PID_CONSTANTS 0 //MANUAL_TUNING must be 1
 #define MOVE_BACK_FORTH 0
@@ -42,7 +42,7 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
   double kp , ki, kd;
   double prevKp, prevKi, prevKd;
 #endif
-double originalSetpoint = 174.29;
+double originalSetpoint = 102.5;
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
@@ -59,10 +59,10 @@ int moveState=0; //0 = balance; 1 = back; 2 = forth
 
 
 int ENA = 3;
-int IN1 = 2;
-int IN2 = 4;
-int IN3 = 7;
-int IN4 = 8;
+int IN1 = 4;
+int IN2 = 5;
+int IN3 = 8;
+int IN4 = 7;
 int ENB = 6;
 
 
@@ -79,7 +79,7 @@ long time5Hz = 0;
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady()
 {
-    Serial.println(F("dmpDataReady!"));
+    //Serial.println(F("dmpDataReady!"));
     mpuInterrupt = true;
 }
 
@@ -127,7 +127,7 @@ void setup()
 
         // enable Arduino interrupt detection
         Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-        attachInterrupt(digitalPinToInterrupt(9), dmpDataReady, RISING);
+        attachInterrupt(digitalPinToInterrupt(2), dmpDataReady, RISING);
         mpuIntStatus = mpu.getIntStatus();
 
         // set our DMP Ready flag so the main loop() function knows it's okay to use it
@@ -221,9 +221,11 @@ void loop()
             Serial.print("\t");
             Serial.print(ypr[1] * 180/M_PI);
             Serial.print("\t");
-            Serial.println(ypr[2] * 180/M_PI);
+            Serial.print(ypr[2] * 180/M_PI);
         #endif
         input = ypr[1] * 180/M_PI + 180;
+        Serial.print("\t");
+        Serial.println(input);
    }
 }
 
