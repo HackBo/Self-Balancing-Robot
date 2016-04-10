@@ -2,8 +2,7 @@
 
 Self Balancing Robot DIY Test.
 
-[![Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/anim_robot.gif)](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/video_robot.webm)
-[logo]: https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg ""
+[![Click for YouTube Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/anim_robot.gif)](https://youtu.be/7tfVts636bs)
 
 ### initial technologies and hardware:
 
@@ -55,4 +54,7 @@ Self Balancing Robot DIY Test.
       board = pro16MHzatmega328
       targets = upload
 ```
+
+
+![alt text](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg "Self Balancing Robot Photo)
 
