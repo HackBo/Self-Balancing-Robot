@@ -1,7 +1,5 @@
 # DIY Self Balancing Robot
 
-Self Balancing Robot DIY Test.
-
 [![Click for YouTube Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/anim_robot.gif)](https://youtu.be/7tfVts636bs)
 
 ### initial technologies and hardware:
@@ -55,6 +53,6 @@ Self Balancing Robot DIY Test.
       targets = upload
 ```
 
+[![Click for YouTube Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg)](https://youtu.be/7tfVts636bs)
 
-![alt text](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg "Self Balancing Robot Photo)
 
