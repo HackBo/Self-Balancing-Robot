@@ -3,7 +3,7 @@
 Self Balancing Robot DIY Test.
 
 [![Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/anim_robot.gif)](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/video_robot.webm)
-[logo]: https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo201604092309.jpg ""
+[logo]: https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg ""
 
 ### initial technologies and hardware:
 
