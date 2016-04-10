@@ -2,14 +2,17 @@
 
 Self Balancing Robot DIY Test.
 
+[logo] https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo201604092309.jpg ""
+
 ### initial technologies and hardware:
 
 - [IMU6050](http://www.aliexpress.com/item/MPU-6050-3-Axis-gyroscope-acce-lerometer-module-3V-5V-compatible-For-Ar/1858984311.html)
 - Motor Drivers [L298N](http://www.aliexpress.com/item/Free-Shipping-1PCS-New-Dual-H-Bridge-DC-Stepper-Motor-Drive-Controller-Board-Module-L298N-for/32556583041.html)
 - [DC Motors](http://www.aliexpress.com/store/product/HK-POST-FREE-Wholesale-48-1-Plastic-DC-Drive-Gear-Motor-Tyre-Tire-Wheel-For/2035033_32603795906.html)
-- [PlatformIO framework](http://platformio.org/) (open source ecosystem for IoT development)
+- [PlatformIO framework](http://platformio.org/) (Open source ecosystem for IoT development)
 
 ### Alpha Test Boards:
+
 - nodemcuv2 env NodeMCU 1.0 (ESP-12E Module) (ESP8266 80MHz, 4096Kb, 80Kb)
 - ArduinoProMini
 
