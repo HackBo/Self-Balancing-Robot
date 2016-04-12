@@ -1,3 +1,17 @@
+/*******************************************************************************************
+ * Self Balancing Robot (2016 @hpsaturn)
+ *
+ * REVISION
+ * ________________________________________________________________________________________
+ *
+ * 20160412 Add macros for serial/analog tunning vars
+ * 20160411 Refactor functions and tunning
+ * 20160410 Ready test on ArduinoProMini y vertical IMU (change input and vars on PID)
+ * 20160409 Change motor constans and pin for IMU interrupt
+ * 20160409 Initial base code from Franco Robot (@gabricluka https://github.com/lukagabric)
+ *
+ ******************************************************************************************/
+
 #include <PID_v1.h>
 #include <LMotorController.h>
 #include "I2Cdev.h"
@@ -5,20 +19,17 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-    #include "Wire.h"
+#include "Wire.h"
 #endif
 
-
-#define LOG_INPUT 1
-#define MANUAL_TUNING 0
-#define LOG_PID_CONSTANTS 0 //MANUAL_TUNING must be 1
+#define LOG_INPUT 0
+#define MANUAL_TUNING 1
+#define MANUAL_TUNING_SERIAL 1
+#define LOG_PID_CONSTANTS 1 //MANUAL_TUNING must be 1
 #define MOVE_BACK_FORTH 0
-
 #define MIN_ABS_SPEED 30
 
 //MPU
-
-
 MPU6050 mpu;
 
 // MPU control/status vars
@@ -28,36 +39,31 @@ uint8_t devStatus;      // return status after each device operation (0 = succes
 uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
+#define YPR_OUTPUT_SELECT 1
 
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
-
 //PID
-
-
 #if MANUAL_TUNING
-  double kp , ki, kd;
-  double prevKp, prevKi, prevKd;
+double prevKp, prevKi, prevKd;
 #endif
-double originalSetpoint = 102.5;
+double kp=50;
+double ki=230;
+double kd=1.23;
+double originalSetpoint = 101.29;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
 int moveState=0; //0 = balance; 1 = back; 2 = forth
 
-#if MANUAL_TUNING
-  PID pid(&input, &output, &setpoint, 0, 0, 0, DIRECT);
-#else
-  PID pid(&input, &output, &setpoint, 70, 240, 1.9, DIRECT);
-#endif
-
+//PID pid(&input, &output, &setpoint, 70, 240, 1.9, DIRECT);
+//PID pid(&input, &output, &setpoint, 62, 242, 1.28, DIRECT);
+PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
 
 //MOTOR CONTROLLER
-
-
 int ENA = 3;
 int IN1 = 4;
 int IN2 = 5;
@@ -65,16 +71,12 @@ int IN3 = 8;
 int IN4 = 7;
 int ENB = 6;
 
-
 LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, 0.6, 1);
 
 
 //timers
-
-
 long time1Hz = 0;
 long time5Hz = 0;
-
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady()
@@ -83,20 +85,17 @@ void dmpDataReady()
     mpuInterrupt = true;
 }
 
-
 void setup()
 {
     // join I2C bus (I2Cdev library doesn't do this automatically)
-    #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-        Wire.begin();
-        TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
-    #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-        Fastwire::setup(400, true);
-    #endif
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+    Wire.begin();
+    TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
+#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+    Fastwire::setup(400, true);
+#endif
 
     // initialize serial communication
-    // (115200 chosen because it is required for Teapot Demo output, but it's
-    // really up to you depending on your project)
     Serial.begin(115200);
     while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
@@ -117,6 +116,7 @@ void setup()
     mpu.setYGyroOffset(76);
     mpu.setZGyroOffset(-85);
     mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
+    //mpu.setZAccelOffset(1688); // 1688 factory default for my test chip
 
     // make sure it worked (returns 0 if so)
     if (devStatus == 0)
@@ -136,12 +136,12 @@ void setup()
 
         // get expected DMP packet size for later comparison
         packetSize = mpu.dmpGetFIFOPacketSize();
-        
-        //setup PID
-        
+
+        //setup PID    
         pid.SetMode(AUTOMATIC);
         pid.SetSampleTime(10);
         pid.SetOutputLimits(-255, 255);  
+
     }
     else
     {
@@ -165,10 +165,10 @@ void loop()
     while (!mpuInterrupt && fifoCount < packetSize)
     {
         //no mpu data - performing PID calculations and output to motors
-        
+
         pid.Compute();
         motorController.move(output, MIN_ABS_SPEED);
-        
+
         unsigned long currentMillis = millis();
 
         if (currentMillis - time1Hz >= 1000)
@@ -176,12 +176,13 @@ void loop()
             loopAt1Hz();
             time1Hz = currentMillis;
         }
-        
+
         if (currentMillis - time5Hz >= 5000)
         {
             loopAt5Hz();
             time5Hz = currentMillis;
         }
+
     }
 
     // reset interrupt flag and get INT_STATUS byte
@@ -198,7 +199,7 @@ void loop()
         mpu.resetFIFO();
         Serial.println(F("FIFO overflow!"));
 
-    // otherwise, check for DMP data ready interrupt (this should happen frequently)
+        // otherwise, check for DMP data ready interrupt (this should happen frequently)
     }
     else if (mpuIntStatus & 0x02)
     {
@@ -207,7 +208,7 @@ void loop()
 
         // read a packet from FIFO
         mpu.getFIFOBytes(fifoBuffer, packetSize);
-        
+
         // track FIFO count here in case there is > 1 packet available
         // (this lets us immediately read more without waiting for an interrupt)
         fifoCount -= packetSize;
@@ -215,18 +216,23 @@ void loop()
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
         mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-        #if LOG_INPUT
-            Serial.print("ypr\t");
-            Serial.print(ypr[0] * 180/M_PI);
-            Serial.print("\t");
-            Serial.print(ypr[1] * 180/M_PI);
-            Serial.print("\t");
-            Serial.print(ypr[2] * 180/M_PI);
-        #endif
-        input = ypr[1] * 180/M_PI + 180;
+
+#if LOG_INPUT
+        Serial.print("ypr\t");
+        Serial.print(ypr[0] * 180/M_PI);
         Serial.print("\t");
-        Serial.println(input);
-   }
+        Serial.print(ypr[1] * 180/M_PI);
+        Serial.print("\t");
+        Serial.print(ypr[2] * 180/M_PI);
+        Serial.print("\tout: ");
+        Serial.println(ypr[YPR_OUTPUT_SELECT] * 180/M_PI + 180);
+#endif
+        input = ypr[YPR_OUTPUT_SELECT] * 180/M_PI + 180;
+
+    }
+
+
+
 }
 
 
@@ -240,56 +246,111 @@ void loopAt1Hz()
 
 void loopAt5Hz()
 {
-    #if MOVE_BACK_FORTH
-        moveBackForth();
-    #endif
+#if MOVE_BACK_FORTH
+    moveBackForth();
+#endif
 }
 
-
 //move back and forth
-
-
 void moveBackForth()
 {
     moveState++;
     if (moveState > 2) moveState = 0;
-    
+
     if (moveState == 0)
-      setpoint = originalSetpoint;
+        setpoint = originalSetpoint;
     else if (moveState == 1)
-      setpoint = originalSetpoint - movingAngleOffset;
+        setpoint = originalSetpoint - movingAngleOffset;
     else
-      setpoint = originalSetpoint + movingAngleOffset;
+        setpoint = originalSetpoint + movingAngleOffset;
 }
 
-
 //PID Tuning (3 potentiometers)
-
 #if MANUAL_TUNING
 void setPIDTuningValues()
 {
+#if MANUAL_TUNING_SERIAL
+    receiveData();
+#else
     readPIDTuningValues();
-    
-    if (kp != prevKp || ki != prevKi || kd != prevKd)
-    {
-#if LOG_PID_CONSTANTS
-        Serial.print(kp);Serial.print(", ");Serial.print(ki);Serial.print(", ");Serial.println(kd);
 #endif
 
+    if (kp != prevKp || ki != prevKi || kd != prevKd)
+    {
+        printConsts();
         pid.SetTunings(kp, ki, kd);
         prevKp = kp; prevKi = ki; prevKd = kd;
     }
 }
-
 
 void readPIDTuningValues()
 {
     int potKp = analogRead(A0);
     int potKi = analogRead(A1);
     int potKd = analogRead(A2);
-        
+
     kp = map(potKp, 0, 1023, 0, 25000) / 100.0; //0 - 250
     ki = map(potKi, 0, 1023, 0, 100000) / 100.0; //0 - 1000
     kd = map(potKd, 0, 1023, 0, 500) / 100.0; //0 - 5
 }
+
+// This function is used to debug the robot, changig the set 
+// value of the PID
+void receiveData(){
+
+    if (Serial.available()){
+        char a = Serial.read();
+        switch (a){
+            case 'q':
+                setSetpoint(getSetPoint()+0.01);
+                break;
+            case 'w':
+                setSetpoint(getSetPoint()-0.01);
+                break;
+            case 'e':
+                setSetpoint(getSetPoint()+0.1);
+                break;
+            case 'r':
+                setSetpoint(getSetPoint()-0.1);
+                break;
+            case 'p':
+                kp--;
+                break;
+            case 'i':
+                ki=ki-2;
+                break;
+            case 'd':
+                kd=kd-0.01;
+                break;
+            case 'P':
+                kp++;
+                break;
+            case 'I':
+                ki=ki+2;
+                break;
+            case 'D':
+                kd=kd+0.01;
+                break;
+        } 
+
+    }
+
+}
+
+void setSetpoint(double d){
+    setpoint = d; 
+    originalSetpoint=setpoint;
+    printConsts();
+}
+
+void printConsts(){
+#if LOG_PID_CONSTANTS
+    Serial.print(kp);Serial.print(", ");Serial.print(ki);Serial.print(", ");Serial.print(kd);Serial.print(", ");Serial.println(setpoint);
+#endif
+}
+
+double getSetPoint(){
+    return setpoint;
+}
+
 #endif
