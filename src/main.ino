@@ -50,10 +50,9 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 #if MANUAL_TUNING
 double prevKp, prevKi, prevKd;
 #endif
-double kp=50;
-double ki=230;
-double kd=1.23;
-double originalSetpoint = 101.29;  // for vertical orientation (IMU board)
+//double kp=60, ki=240, kd=1.23;
+double kp=37, ki=186, kd=0.88;
+double originalSetpoint = 101.28;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
@@ -71,7 +70,7 @@ int IN3 = 8;
 int IN4 = 7;
 int ENB = 6;
 
-LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, 0.6, 1);
+LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, .8, 1);
 
 
 //timers
@@ -231,10 +230,7 @@ void loop()
 
     }
 
-
-
 }
-
 
 void loopAt1Hz()
 {
