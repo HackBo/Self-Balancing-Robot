@@ -53,6 +53,18 @@
       targets = upload
 ```
 
+
+
+## About this Project
+
+**Special Thanks:** 
+
+- Luka Gabrić, base code for MVC and testing IMU from Franco Robot @gabricluka https://github.com/lukagabric 
+- Camilo Soto, SDK and hardware alternatives, review code and drivers @tucanae47 https://github.com/tucanae47
+
+
+
+
+
+
 [![Click for YouTube Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg)](https://youtu.be/7tfVts636bs)
-
-
