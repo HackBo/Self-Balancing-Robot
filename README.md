@@ -23,10 +23,10 @@
    ```
    or more info on oficial site: [http://docs.platformio.org/en/latest/installation.html](http://docs.platformio.org/en/latest/installation.html)
 
-3. Install basic libraries:
+3. Install basic libraries (PID, I2CLib core):
 
    ``` 
-   $ platformio lib install 2
+   $ platformio lib install 2 11
    ```
    
 3. Clone project and external libraries:
