@@ -22,10 +22,10 @@
 #include "Wire.h"
 #endif
 
-#define LOG_INPUT 0
-#define MANUAL_TUNING 1
-#define MANUAL_TUNING_SERIAL 1
-#define LOG_PID_CONSTANTS 1 //MANUAL_TUNING must be 1
+#define LOG_INPUT 1
+#define MANUAL_TUNING 0
+#define MANUAL_TUNING_SERIAL 0
+#define LOG_PID_CONSTANTS 0 //MANUAL_TUNING must be 1
 #define MOVE_BACK_FORTH 0
 #define MIN_ABS_SPEED 30
 
@@ -39,7 +39,7 @@ uint8_t devStatus;      // return status after each device operation (0 = succes
 uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
-#define YPR_OUTPUT_SELECT 1
+
 
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
@@ -47,12 +47,13 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 //PID
+#define YPR_OUTPUT_SELECT 1
 #if MANUAL_TUNING
 double prevKp, prevKi, prevKd;
 #endif
 //double kp=60, ki=240, kd=1.23;
-double kp=37, ki=186, kd=0.88;
-double originalSetpoint = 101.28;  // for vertical orientation (IMU board)
+double kp=70, ki=240, kd=1.9;
+double originalSetpoint = 167.9;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
