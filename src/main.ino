@@ -22,12 +22,12 @@
 #include "Wire.h"
 #endif
 
-#define LOG_INPUT 1
-#define MANUAL_TUNING 0
-#define MANUAL_TUNING_SERIAL 0
-#define LOG_PID_CONSTANTS 0 //MANUAL_TUNING must be 1
-#define MOVE_BACK_FORTH 0
-#define MIN_ABS_SPEED 30
+#define LOG_INPUT               0
+#define MANUAL_TUNING           0
+#define MANUAL_TUNING_SERIAL    0
+#define LOG_PID_CONSTANTS       0 //MANUAL_TUNING must be 1
+#define MOVE_BACK_FORTH         0
+#define MIN_ABS_SPEED           3 
 
 //MPU
 MPU6050 mpu;
@@ -52,8 +52,8 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 double prevKp, prevKi, prevKd;
 #endif
 //double kp=60, ki=240, kd=1.23;
-double kp=70, ki=240, kd=1.9;
-double originalSetpoint = 167.9;  // for vertical orientation (IMU board)
+double kp=57, ki=240, kd=1.9;
+double originalSetpoint = 168.28;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
@@ -71,7 +71,7 @@ int IN3 = 8;
 int IN4 = 7;
 int ENB = 6;
 
-LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, .8, 1);
+LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, .84, 1);
 
 
 //timers
