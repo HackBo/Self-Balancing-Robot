@@ -27,10 +27,12 @@
 #define MANUAL_TUNING_SERIAL    0
 #define LOG_PID_CONSTANTS       0 //MANUAL_TUNING must be 1
 #define MOVE_BACK_FORTH         0
-#define MIN_ABS_SPEED           3 
+#define MIN_ABS_SPEED           1
 
 //MPU
+#define MPU_INT  5
 MPU6050 mpu;
+
 
 // MPU control/status vars
 bool dmpReady = false;  // set true if DMP init was successful
@@ -51,9 +53,10 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 #if MANUAL_TUNING
 double prevKp, prevKi, prevKd;
 #endif
+#define SAMPLE_TIME 5
 //double kp=60, ki=240, kd=1.23;
-double kp=57, ki=240, kd=1.9;
-double originalSetpoint = 168.28;  // for vertical orientation (IMU board)
+double kp=57, ki=240, kd=2.0;
+double originalSetpoint = 169.43;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
 double input, output;
@@ -64,14 +67,14 @@ int moveState=0; //0 = balance; 1 = back; 2 = forth
 PID pid(&input, &output, &setpoint, kp, ki, kd, DIRECT);
 
 //MOTOR CONTROLLER
-int ENA = 3;
-int IN1 = 4;
-int IN2 = 5;
-int IN3 = 8;
-int IN4 = 7;
-int ENB = 6;
+int ENA = 6;
+int IN1 = 7;
+int IN2 = 8;
+int IN3 = 11;
+int IN4 = 10;
+int ENB = 9;
 
-LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, .84, 1);
+LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, 1, .90);
 
 
 //timers
@@ -97,7 +100,8 @@ void setup()
 
     // initialize serial communication
     Serial.begin(115200);
-    while (!Serial); // wait for Leonardo enumeration, others continue immediately
+    delay(1000);
+    //while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
     // initialize device
     Serial.println(F("Initializing I2C devices..."));
@@ -127,7 +131,8 @@ void setup()
 
         // enable Arduino interrupt detection
         Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-        attachInterrupt(digitalPinToInterrupt(2), dmpDataReady, RISING);
+        pinMode(MPU_INT,INPUT);
+        attachInterrupt(digitalPinToInterrupt(MPU_INT), dmpDataReady, RISING);
         mpuIntStatus = mpu.getIntStatus();
 
         // set our DMP Ready flag so the main loop() function knows it's okay to use it
@@ -139,7 +144,7 @@ void setup()
 
         //setup PID    
         pid.SetMode(AUTOMATIC);
-        pid.SetSampleTime(10);
+        pid.SetSampleTime(SAMPLE_TIME);
         pid.SetOutputLimits(-255, 255);  
 
     }
