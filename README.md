@@ -4,10 +4,12 @@
 
 ##### Initial technologies and hardware:
 
-- [IMU6050](http://www.aliexpress.com/item/MPU-6050-3-Axis-gyroscope-acce-lerometer-module-3V-5V-compatible-For-Ar/1858984311.html)
-- Motor Drivers [L298N](http://www.aliexpress.com/item/Free-Shipping-1PCS-New-Dual-H-Bridge-DC-Stepper-Motor-Drive-Controller-Board-Module-L298N-for/32556583041.html)
-- [DC Motors](http://www.aliexpress.com/store/product/HK-POST-FREE-Wholesale-48-1-Plastic-DC-Drive-Gear-Motor-Tyre-Tire-Wheel-For/2035033_32603795906.html)
-- [PlatformIO framework](http://platformio.org/) (Open source ecosystem for IoT development)
+- Base CPU: [Teensy32](https://www.pjrc.com/teensy/teensy31.html)
+- Comm and BUS network: [ESP8266](https://espressif.com/en/products/hardware/esp8266ex/overview)
+- Balancing Sensors: [IMU6050](http://www.aliexpress.com/item/MPU-6050-3-Axis-gyroscope-acce-lerometer-module-3V-5V-compatible-For-Ar/1858984311.html)
+- Motor Driver: [L298N](http://www.aliexpress.com/item/Free-Shipping-1PCS-New-Dual-H-Bridge-DC-Stepper-Motor-Drive-Controller-Board-Module-L298N-for/32556583041.html)
+- Motors: [Basic DC Motors](http://www.aliexpress.com/store/product/HK-POST-FREE-Wholesale-48-1-Plastic-DC-Drive-Gear-Motor-Tyre-Tire-Wheel-For/2035033_32603795906.html)
+- Tools and software [PlatformIO framework](http://platformio.org/) (Open source ecosystem for IoT development)
 
 ##### Alpha Test Boards:
 
@@ -50,22 +52,36 @@
 4. Compile project and deploy
    ``` 
    $ platformio run
+
+   ```
+
+### Firmware v1.0 for Arduino ProMini
+
+   From main source:
+
+   ```
+   $ git checkout tags/v1.0-ArduinoProMini
+   $ platformio run --target clean
+   $ platformio run
    ```
    
 ## Current main config:
-```
-    [env:pro16MHzatmega328]
-      platform = atmelavr
-      framework = arduino 
-      board = pro16MHzatmega328
-      targets = upload
-```
+
+   Teensy32 (Arduino framework)
+
+   ```
+   [env:teensy31]
+     platform = teensy
+     framework = arduino
+     board = teensy31
+     targets = upload
+     #build_flags = -DTEENSY31 -UUSB_SERIAL -DUSB_SERIAL_HID
+   ```
 
 ## Schematic
 #### Initial basic robot
 
  (Alpha version, click for last schematic update)
- 
  
 [![Click for last schematic update](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/schematics_basic_self_balancing.png)](http://www.schematics.com/project/self-balancing-robot-31896/)
 
