@@ -30,9 +30,8 @@
 #define MIN_ABS_SPEED           1
 
 //MPU
-#define MPU_INT  5
+#define PIN_MPU_INT  5
 MPU6050 mpu;
-
 
 // MPU control/status vars
 bool dmpReady = false;  // set true if DMP init was successful
@@ -49,11 +48,13 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 //PID
-#define YPR_OUTPUT_SELECT 1
+#define YPR_OUTPUT_SELECT    1
+#define SAMPLE_TIME          5
+
 #if MANUAL_TUNING
 double prevKp, prevKi, prevKd;
 #endif
-#define SAMPLE_TIME 5
+
 //double kp=60, ki=240, kd=1.23;
 double kp=57, ki=240, kd=2.0;
 double originalSetpoint = 169.43;  // for vertical orientation (IMU board)
@@ -76,15 +77,16 @@ int ENB = 9;
 
 LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, 1, .90);
 
+#define PIN_BEEP  12
+#define PIN_LED   13
 
 //timers
 long time1Hz = 0;
 long time5Hz = 0;
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady()
-{
-    //Serial.println(F("dmpDataReady!"));
+
+void dmpDataReady(){
     mpuInterrupt = true;
 }
 
@@ -98,11 +100,18 @@ void setup()
     Fastwire::setup(400, true);
 #endif
 
+    // PINs setup 
+    pinMode(PIN_MPU_INT,INPUT);
+    pinMode(PIN_BEEP,OUTPUT);
+    pinMode(PIN_LED,OUTPUT);
+
     // initialize serial communication
     Serial.begin(115200);
-    delay(1000);
-    //while (!Serial); // wait for Leonardo enumeration, others continue immediately
-
+#if LOG_INPUT
+    while (!Serial); // wait for Leonardo enumeration, others continue immediately
+#else
+    delay(1000);     // workaround for Teensy
+#endif
     // initialize device
     Serial.println(F("Initializing I2C devices..."));
     mpu.initialize();
@@ -130,13 +139,12 @@ void setup()
         mpu.setDMPEnabled(true);
 
         // enable Arduino interrupt detection
-        Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-        pinMode(MPU_INT,INPUT);
-        attachInterrupt(digitalPinToInterrupt(MPU_INT), dmpDataReady, RISING);
+        Serial.print(F("Enabling interrupt detection, on external interrupt: ")); Serial.println(PIN_MPU_INT);
+        attachInterrupt(digitalPinToInterrupt(PIN_MPU_INT), dmpDataReady, RISING);
         mpuIntStatus = mpu.getIntStatus();
 
         // set our DMP Ready flag so the main loop() function knows it's okay to use it
-        Serial.println(F("DMP ready! Waiting for first interrupt..."));
+        Serial.print(F("DMP ready! Waiting for first interrupt.."));
         dmpReady = true;
 
         // get expected DMP packet size for later comparison
@@ -158,13 +166,18 @@ void setup()
         Serial.print(devStatus);
         Serial.println(F(")"));
     }
+
 }
 
 
 void loop()
 {
     // if programming failed, don't try to do anything
-    if (!dmpReady) return;
+    if (!dmpReady) {
+        digitalWrite(PIN_LED,HIGH);
+        Serial.print(".");
+        return;
+    }
 
     // wait for MPU interrupt or extra packet(s) available
     while (!mpuInterrupt && fifoCount < packetSize)
@@ -240,6 +253,7 @@ void loop()
 
 void loopAt1Hz()
 {
+    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
 #if MANUAL_TUNING
     setPIDTuningValues();
 #endif
@@ -347,7 +361,10 @@ void setSetpoint(double d){
 
 void printConsts(){
 #if LOG_PID_CONSTANTS
-    Serial.print(kp);Serial.print(", ");Serial.print(ki);Serial.print(", ");Serial.print(kd);Serial.print(", ");Serial.println(setpoint);
+    Serial.print(kp);Serial.print(", ");
+    Serial.print(ki);Serial.print(", ");
+    Serial.print(kd);Serial.print(", ");
+    Serial.println(setpoint);
 #endif
 }
 
@@ -356,3 +373,4 @@ double getSetPoint(){
 }
 
 #endif
+
