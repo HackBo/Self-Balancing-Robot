@@ -49,7 +49,7 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 //PID
 #define YPR_OUTPUT_SELECT    1
-#define SAMPLE_TIME          5
+#define SAMPLE_TIME          3
 
 #if MANUAL_TUNING
 double prevKp, prevKi, prevKd;
@@ -60,7 +60,7 @@ double kp=57, ki=240, kd=2.0;
 double originalSetpoint = 169.43;  // for vertical orientation (IMU board)
 double setpoint = originalSetpoint;
 double movingAngleOffset = 0.3;
-double input, output;
+double input, output, diffPoint;
 int moveState=0; //0 = balance; 1 = back; 2 = forth
 
 //PID pid(&input, &output, &setpoint, 70, 240, 1.9, DIRECT);
@@ -77,7 +77,7 @@ int ENB = 9;
 
 LMotorController motorController(ENA, IN1, IN2, ENB, IN3, IN4, 1, .90);
 
-#define PIN_BEEP  12
+#define PIN_BEEP  4
 #define PIN_LED   13
 
 //timers
@@ -167,6 +167,8 @@ void setup()
         Serial.println(F(")"));
     }
 
+    tone(PIN_BEEP,640,500);
+
 }
 
 
@@ -185,18 +187,20 @@ void loop()
         //no mpu data - performing PID calculations and output to motors
 
         pid.Compute();
-        motorController.move(output, MIN_ABS_SPEED);
+
+        double diffPoint=abs(input-originalSetpoint);
+
+        if(diffPoint>45)motorController.stopMoving();     // 45 Degree stop
+        else motorController.move(output, MIN_ABS_SPEED);
 
         unsigned long currentMillis = millis();
 
-        if (currentMillis - time1Hz >= 1000)
-        {
+        if (currentMillis - time1Hz >= 1000){
             loopAt1Hz();
             time1Hz = currentMillis;
         }
 
-        if (currentMillis - time5Hz >= 5000)
-        {
+        if (currentMillis - time5Hz >= 5000){
             loopAt5Hz();
             time5Hz = currentMillis;
         }
@@ -246,8 +250,11 @@ void loop()
         Serial.println(ypr[YPR_OUTPUT_SELECT] * 180/M_PI + 180);
 #endif
         input = ypr[YPR_OUTPUT_SELECT] * 180/M_PI + 180;
-
+        
+        
     }
+
+
 
 }
 
