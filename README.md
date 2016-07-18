@@ -14,17 +14,32 @@
 ##### Alpha Test Boards:
 
 - NodeMCU 1.0 (ESP-12E Module) (ESP8266)
-- RaspberryPi
-- ArduinoProMini
+- RaspberryPi 3
 
 ## Objectives:
 
 - Two PID stages (accelerometer and pitch control)
+- ESP8266 basic control (MiniOSC)
 - ESP8266 to RaspberryPi Wifi interface via CoAP or OSC protocols (Bus data, control, others)
 - RaspberryPi+Camera+ServoMotors (image processing via OpenCV)
 - Suggest others features!
+ 
+## Current main config:
+
+   Teensy32 (Arduino framework)
+
+   ```
+   [env:teensy31]
+     platform = teensy
+     framework = arduino
+     board = teensy31
+     targets = upload
+     #build_flags = -DTEENSY31 -UUSB_SERIAL -DUSB_SERIAL_HID
+   ```
 
 ## Firmware Installation
+
+### Current firmware (Teensy32)
 
 1. First install PlatformIO via pip:
  
@@ -57,7 +72,7 @@
 
 ### Firmware v1.0 for Arduino ProMini
 
-   From main source:
+   From main source and previous steps
 
    ```
    $ git checkout tags/v1.0-ArduinoProMini
@@ -65,25 +80,19 @@
    $ platformio run
    ```
    
-## Current main config:
 
-   Teensy32 (Arduino framework)
+## Schematics
 
-   ```
-   [env:teensy31]
-     platform = teensy
-     framework = arduino
-     board = teensy31
-     targets = upload
-     #build_flags = -DTEENSY31 -UUSB_SERIAL -DUSB_SERIAL_HID
-   ```
-
-## Schematic
-#### Initial basic robot
+#### Initial basic robot (ArduinoProMini)
 
  (Alpha version, click for last schematic update)
  
 [![Click for last schematic update](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/schematics_basic_self_balancing.png)](http://www.schematics.com/project/self-balancing-robot-31896/)
+
+#### Teensy32 and ESP8266
+
+(cooming soon)
+
 
 ## About this Project
 
@@ -91,8 +100,6 @@
 
 - Luka Gabrić, base code for MVC and testing IMU from Franco Robot @gabricluka https://github.com/lukagabric 
 - Camilo Soto, SDK and hardware alternatives, review code and drivers @tucanae47 https://github.com/tucanae47
-
-
 
 
 
