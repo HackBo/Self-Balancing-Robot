@@ -12,6 +12,7 @@
  *
  ******************************************************************************************/
 
+#include <Arduino.h>
 #include <PID_v1.h>
 #include <LMotorController.h>
 #include "I2Cdev.h"
@@ -88,6 +89,21 @@ volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin h
 
 void dmpDataReady(){
     mpuInterrupt = true;
+}
+
+void loopAt1Hz()
+{
+    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+#if MANUAL_TUNING
+    setPIDTuningValues();
+#endif
+}
+
+void loopAt5Hz()
+{
+#if MOVE_BACK_FORTH
+    moveBackForth();
+#endif
 }
 
 void setup()
@@ -254,24 +270,6 @@ void loop()
         
     }
 
-
-
-}
-
-void loopAt1Hz()
-{
-    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-#if MANUAL_TUNING
-    setPIDTuningValues();
-#endif
-}
-
-
-void loopAt5Hz()
-{
-#if MOVE_BACK_FORTH
-    moveBackForth();
-#endif
 }
 
 //move back and forth
