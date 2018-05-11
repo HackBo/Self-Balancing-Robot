@@ -41,31 +41,16 @@
 
 ### Current firmware (Teensy32)
 
-1. First install PlatformIO via pip:
+1. First install PlatformIO via `pip`
  
-   ``` 
+   ``` bash
    $ pip install -U platformio 
    ```
-   or more info on oficial site: [http://docs.platformio.org/en/latest/installation.html](http://docs.platformio.org/en/latest/installation.html)
+   or via IDE. More info in the oficial documentation: [http://docs.platformio.org/en/latest/installation.html](http://docs.platformio.org/en/latest/installation.html)
 
-3. Install basic libraries (PID, I2CLib core):
+2. Compile project and deploy
 
-   ``` 
-   $ platformio lib install 2 11
-   ```
-   
-3. Clone project and external libraries:
-
-   ```
-   $ git clone https://github.com/HackBo/Self-Balancing-Robot
-   $ mkdir external_libraries
-   $ cd external_libraries
-   $ git clone git@github.com:jrowberg/i2cdevlib.git
-   $ cd ..
-   ```
-   
-4. Compile project and deploy
-   ``` 
+   ``` bash 
    $ platformio run
 
    ```
@@ -100,8 +85,6 @@
 
 - Luka Gabrić, base code for MVC and testing IMU from Franco Robot @gabricluka https://github.com/lukagabric 
 - Camilo Soto, SDK and hardware alternatives, review code and drivers @tucanae47 https://github.com/tucanae47
-
-
 
 
 [![Click for YouTube Video](https://github.com/HackBo/Self-Balancing-Robot/blob/master/images/photo_robot.jpg)](https://youtu.be/7tfVts636bs)
